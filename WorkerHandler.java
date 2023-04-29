@@ -45,10 +45,16 @@ public class WorkerHandler implements Runnable {
         while (true) {
             try {
                 midresults = (ArrayList<HashMap<String, ArrayList<Waypoint>>>) inW.readObject();
+
                 System.out
                         .println("Eimai ston Workerhandler kai exw ta intermediate results: " + midresults.get(0) + " "
                                 + midresults.get(1));
                 System.out.println("Eimai ston Workerhandler kai exw workers: " + workerHandlers.size());
+
+                // gia kathe user metra X epistrofes
+                // an einai X kane Reduce
+
+                String finalResults = midresults.toString();
 
             } catch (ClassNotFoundException | IOException e) {
                 // TODO Auto-generated catch block
