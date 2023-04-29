@@ -14,41 +14,37 @@ public class Server {
         System.out.println("Chat app has started");
 
         String waypoints = "";
-        int count=0;
-        // connect all the workers
-        while (!serverSocket.isClosed()) {
+        int count = 0;
+        int workerAmount = 2;
+
         try {
-            
-                socket1 = serverSocket.accept();
+            while (!serverSocket.isClosed()) {
+                Socket socket1 = serverSocket.accept();
                 System.out.println("A new worker has connected");
                 WorkerHandler workerHandler = new WorkerHandler(socket1);
                 Thread thread = new Thread(workerHandler);
                 thread.start();
                 count++;
-                if (count > 1) {
+                if (count > workerAmount - 1) {
                     break;
                 }
-                
-                
             }
-        catch (IOException e) {
+        } catch (IOException e) {
             closeServerSocket();
         }
 
-        try {   
-                socket2 = serverSocket.accept();
+        try {
+            while (!serverSocket.isClosed()) {
+                Socket socket1 = serverSocket.accept();
                 System.out.println("A new client has connected");
-                ClientHandler clientHandler = new ClientHandler(socket2);
+                ClientHandler clientHandler = new ClientHandler(socket1);
 
-                Thread thread2 = new Thread(clientHandler);
-                thread2.start();
-
-                }
-            
-        catch (IOException e) {
+                Thread thread = new Thread(clientHandler);
+                thread.start();
+            }
+        } catch (IOException e) {
             closeServerSocket();
         }
-    }
     }
 
     public void closeServerSocket() {
