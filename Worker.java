@@ -36,9 +36,10 @@ public class Worker {
                 try {
 
                     // h map tha parei to map kai tha to epistrepsei ta midresults
-                    ArrayList<String> arr = new ArrayList<>();
-                    arr.add("hi");
-                    arr.add("hey");
+                    // ArrayList<String> arr = new ArrayList<>();
+                    // arr.add("hi");
+                    // arr.add("hey");
+                    
                     out.writeObject(toSend);
 
                 } catch (IOException e) {

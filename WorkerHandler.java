@@ -44,11 +44,15 @@ public class WorkerHandler implements Runnable {
         int workerReturn = 0;
         while (true) {
             try {
-                midresults = (ArrayList<HashMap<String, ArrayList<Waypoint>>>) inW.readObject();
-                System.out
-                        .println("Eimai ston Workerhandler kai exw ta intermediate results: " + midresults.get(0) + " "
+                midresults = (ArrayList<HashMap<String, ArrayList<Waypoint>>>) inW.readObject(); //edw o Server exei parei ta midresults apo ton worker
+                
+                System.out.println("Eimai ston Workerhandler kai exw ta intermediate results: " + midresults.get(0) + " "
                                 + midresults.get(1));
                 System.out.println("Eimai ston Workerhandler kai exw workers: " + workerHandlers.size());
+
+                //edw h reduce tha parei ta midresults kai tha mas dwsei ta final results
+
+                broadcastToClient(midresults);
 
             } catch (ClassNotFoundException | IOException e) {
                 // TODO Auto-generated catch block
@@ -56,6 +60,25 @@ public class WorkerHandler implements Runnable {
             }
         }
 
+    }
+
+    public void broadcastToClient(ArrayList<HashMap<String, ArrayList<Waypoint>>> waypoints) {
+
+        // steilto se olous tous clients
+        String messageToSend = "client took the message";
+        for (ClientHandler clientHandler : ClientHandler.clientHandlers) {
+            try {
+
+                //if (!clientHandler.clientUsername.equals(clientUsername)) {
+                    clientHandler.bufferedWriterC.write(messageToSend);
+                    clientHandler.bufferedWriterC.newLine();
+                    clientHandler.bufferedWriterC.flush();
+                //}
+            } catch (IOException e) {
+                closeEverything(socket, inW, outW);
+                break;
+            }
+        }
     }
 
     // public static void clientRequest(String clientMessage) {
