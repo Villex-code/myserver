@@ -8,11 +8,11 @@ import java.io.*;
 
 public class ClientHandler implements Runnable {
 
-    public static ArrayList<String> clientHandlers = new ArrayList<>();
+    public static ArrayList<ClientHandler> clientHandlers = new ArrayList<>();
     private Socket socket;
     public static int w = 0;
     private BufferedReader bufferedReaderC;
-    // private BufferedWriter bufferedWriter;
+    private BufferedWriter bufferedWriter;
     private ObjectOutputStream out;
     private String clientUsername;
 
@@ -20,12 +20,14 @@ public class ClientHandler implements Runnable {
         try {
             this.socket = socket;
             out = new ObjectOutputStream(socket.getOutputStream());
-            // this.bufferedWriter = new BufferedWriter(new
-            // OutputStreamWriter(socket.getOutputStream()));
+            this.bufferedWriter = new BufferedWriter(new OutputStreamWriter(socket.getOutputStream()));
             this.bufferedReaderC = new BufferedReader(new InputStreamReader(socket.getInputStream()));
             // this.clientUsername = bufferedReader.readLine();
             // clientHandlers.add(this);
             // broadcastMessage("Server : " + clientUsername + " has connected !");
+            w++;
+            clientUsername = "user" + w;
+            clientHandlers.add(this);
 
         } catch (IOException e) {
             closeEverything(socket, bufferedReaderC, out);
@@ -38,9 +40,6 @@ public class ClientHandler implements Runnable {
         try {
 
             messageFromClient = bufferedReaderC.readLine();
-            w++;
-            clientUsername = "user" + w;
-            clientHandlers.add(clientUsername);
 
             System.out.println("Eimai ston client handler kai phra apo ton client: " + clientUsername
                     + " to gpx arxeio: " + messageFromClient);
@@ -92,21 +91,21 @@ public class ClientHandler implements Runnable {
 
     }
 
-    public void broadcastMessage(String clientUsername, ArrayList<HashMap<String, ArrayList<Waypoint>>> waypoints) {
+    public void broadcastMessage(String clientUsername, String messageToSend) {
 
-        // // steilto se olous tous clients
-        // for (ClientHandler clientHandler : clientHandlers) {
-        // try {
-        // if (!clientHandler.clientUsername.equals(clientUsername)) {
-        // clientHandler.bufferedWriter.write(messageToSend);
-        // clientHandler.bufferedWriter.newLine();
-        // clientHandler.bufferedWriter.flush();
-        // }
-        // } catch (IOException e) {
-        // closeEverything(socket, in, out);
-        // break;
-        // }
-        // }
+        // steilto se olous tous clients
+        for (ClientHandler clientHandler : clientHandlers) {
+            try {
+                if (!clientHandler.clientUsername.equals(clientUsername)) {
+                    clientHandler.bufferedWriter.write(messageToSend);
+                    clientHandler.bufferedWriter.newLine();
+                    clientHandler.bufferedWriter.flush();
+                }
+            } catch (IOException e) {
+                closeEverything(socket, bufferedReaderC, out);
+                break;
+            }
+        }
 
         // steilto se olous tous workers
         int i = 0;
