@@ -44,10 +44,12 @@ public class WorkerHandler implements Runnable {
         int workerReturn = 0;
         while (true) {
             try {
+
                 midresults = (ArrayList<HashMap<String, ArrayList<Waypoint>>>) inW.readObject();
 
                 System.out
-                        .println("Eimai ston Workerhandler kai exw ta intermediate results: " + midresults.get(0) + " "
+                        .println("Eimai ston Workerhandler kai exw ta intermediate results: " + midresults.get(0)
+                                + " kai "
                                 + midresults.get(1));
                 System.out.println("Eimai ston Workerhandler kai exw workers: " + workerHandlers.size());
 
@@ -62,6 +64,25 @@ public class WorkerHandler implements Runnable {
             }
         }
 
+    }
+
+    public void broadcastToClient(ArrayList<HashMap<String, ArrayList<Waypoint>>> waypoints) {
+
+        // steilto se olous tous clients
+        String messageToSend = "client took the message";
+        for (ClientHandler clientHandler : ClientHandler.clientHandlers) {
+            try {
+
+                // if (!clientHandler.clientUsername.equals(clientUsername)) {
+                clientHandler.bufferedWriterC.write(messageToSend);
+                clientHandler.bufferedWriterC.newLine();
+                clientHandler.bufferedWriterC.flush();
+                // }
+            } catch (IOException e) {
+                closeEverything(socket, inW, outW);
+                break;
+            }
+        }
     }
 
     // public static void clientRequest(String clientMessage) {

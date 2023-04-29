@@ -12,7 +12,7 @@ public class ClientHandler implements Runnable {
     private Socket socket;
     public static int w = 0;
     private BufferedReader bufferedReaderC;
-    private BufferedWriter bufferedWriter;
+    BufferedWriter bufferedWriterC;
     private ObjectOutputStream out;
     private String clientUsername;
 
@@ -20,7 +20,7 @@ public class ClientHandler implements Runnable {
         try {
             this.socket = socket;
             out = new ObjectOutputStream(socket.getOutputStream());
-            this.bufferedWriter = new BufferedWriter(new OutputStreamWriter(socket.getOutputStream()));
+            this.bufferedWriterC = new BufferedWriter(new OutputStreamWriter(socket.getOutputStream()));
             this.bufferedReaderC = new BufferedReader(new InputStreamReader(socket.getInputStream()));
             // this.clientUsername = bufferedReader.readLine();
             // clientHandlers.add(this);
@@ -82,7 +82,7 @@ public class ClientHandler implements Runnable {
             // waypoints.add("Sublist2");
             // waypoints.add("Sublist3");
 
-            broadcastMessage(clientUsername, waypoints);
+            broadcastToWorker(clientUsername, waypoints);
 
         } catch (IOException e) {
             closeEverything(socket, bufferedReaderC, out);
@@ -91,22 +91,24 @@ public class ClientHandler implements Runnable {
 
     }
 
-    public void broadcastMessage(String clientUsername, String messageToSend) {
+    // public void broadcastToClient(String clientUsername, ArrayList<HashMap<String, ArrayList<Waypoint>>> waypoints) {
 
-        // steilto se olous tous clients
-        for (ClientHandler clientHandler : clientHandlers) {
-            try {
-                if (!clientHandler.clientUsername.equals(clientUsername)) {
-                    clientHandler.bufferedWriter.write(messageToSend);
-                    clientHandler.bufferedWriter.newLine();
-                    clientHandler.bufferedWriter.flush();
-                }
-            } catch (IOException e) {
-                closeEverything(socket, bufferedReaderC, out);
-                break;
-            }
-        }
+    //     // steilto se olous tous clients
+    //     for (ClientHandler clientHandler : clientHandlers) {
+    //         try {
+    //             if (!clientHandler.clientUsername.equals(clientUsername)) {
+    //                 clientHandler.bufferedWriter.write(messageToSend);
+    //                 clientHandler.bufferedWriter.newLine();
+    //                 clientHandler.bufferedWriter.flush();
+    //             }
+    //         } catch (IOException e) {
+    //             closeEverything(socket, bufferedReaderC, out);
+    //             break;
+    //         }
+    //     }
+    // }
 
+    public void broadcastToWorker(String clientUsername, ArrayList<HashMap<String, ArrayList<Waypoint>>> waypoints) {
         // steilto se olous tous workers
         int i = 0;
 
