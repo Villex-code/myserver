@@ -18,6 +18,7 @@ public class Client {
             // in = new ObjectInputStream(socket.getInputStream());
             this.bufferedReader = new BufferedReader(new InputStreamReader(socket.getInputStream()));
             this.bufferedWriter = new BufferedWriter(new OutputStreamWriter(socket.getOutputStream()));
+
         } catch (IOException e) {
             closeEverything(socket, in, bufferedWriter);
         }
@@ -85,7 +86,7 @@ public class Client {
         System.out.println("What is the name of your gpx file : ");
         String gpxfile = scanner.nextLine();
         Socket socket = new Socket("localhost", 1234);
-        Client client = new Client(socket, "route1.gpx");
+        Client client = new Client(socket, gpxfile);
         client.listenForMessage();
         client.sendMessage();
     }

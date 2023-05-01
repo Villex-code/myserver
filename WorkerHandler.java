@@ -48,15 +48,20 @@ public class WorkerHandler implements Runnable {
                 midresults = (ArrayList<HashMap<String, ArrayList<Waypoint>>>) inW.readObject();
 
                 System.out
-                        .println("Eimai ston Workerhandler kai exw ta intermediate results: " + midresults.get(0)
-                                + " kai "
-                                + midresults.get(1));
+                        .println("Eimai ston Workerhandler kai exw ta intermediate results: " + midresults.get(0));
                 System.out.println("Eimai ston Workerhandler kai exw workers: " + workerHandlers.size());
 
                 // gia kathe user metra X epistrofes
                 // an einai X kane Reduce
 
                 String finalResults = midresults.toString();
+                String tempMessage = "Hello there client , this is a message from Worker Handler ";
+
+                ClientHandler.broadcastToClient(finalResults);
+
+                System.out.println("-------------");
+                System.out.println("Sending to client done !");
+                System.out.println("-------------");
 
             } catch (ClassNotFoundException | IOException e) {
                 // TODO Auto-generated catch block

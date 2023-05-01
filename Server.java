@@ -13,7 +13,6 @@ public class Server {
     public void startServer() throws IOException {
         System.out.println("Chat app has started");
 
-        String waypoints = "";
         int count = 0;
         int workerAmount = 2;
 

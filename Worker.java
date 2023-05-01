@@ -39,7 +39,7 @@ public class Worker {
                     // ArrayList<String> arr = new ArrayList<>();
                     // arr.add("hi");
                     // arr.add("hey");
-                    
+
                     out.writeObject(toSend);
 
                 } catch (IOException e) {
@@ -55,16 +55,13 @@ public class Worker {
             @Override
             public void run() {
                 ArrayList<HashMap<String, ArrayList<Waypoint>>> listpart = new ArrayList<>();
+                System.out.println("Worker has started ");
                 while (true) {
                     try {
                         listpart = (ArrayList<HashMap<String, ArrayList<Waypoint>>>) in.readObject();
 
-                        System.out.println("Eimai ston Worker kai phra list me: name: " + listpart.get(1).get("user1"));
+                        System.out.println("Eimai ston Worker kai phra list me: name: " + listpart.get(0).get("user1"));
                         System.out.println(listpart.get(0));
-
-                        listpart.add(listpart.get(0));
-                        listpart.add(listpart.get(0));
-                        listpart.add(listpart.get(0));
 
                         sendMessage(listpart);
 

@@ -11,9 +11,9 @@ public class ClientHandler implements Runnable {
     public static ArrayList<ClientHandler> clientHandlers = new ArrayList<>();
     private Socket socket;
     public static int w = 0;
-    private BufferedReader bufferedReaderC;
-    BufferedWriter bufferedWriterC;
-    private ObjectOutputStream out;
+    public BufferedReader bufferedReaderC;
+    public BufferedWriter bufferedWriterC;
+    public ObjectOutputStream out;
     private String clientUsername;
 
     public ClientHandler(Socket socket) {
@@ -37,87 +37,66 @@ public class ClientHandler implements Runnable {
     @Override
     public void run() {
         String messageFromClient;
-        try {
+        while (this.socket.isConnected()) {
+            try {
+                System.out.println("Waiting in the clientHandler for a message ...");
 
-            messageFromClient = bufferedReaderC.readLine();
+                messageFromClient = bufferedReaderC.readLine();
 
-            System.out.println("Eimai ston client handler kai phra apo ton client: " + clientUsername
-                    + " to gpx arxeio: " + messageFromClient);
+                System.out.println("Eimai ston client handler kai PHRA apo ton client: " + clientUsername
+                        + " to gpx arxeio: " + messageFromClient);
 
-            // parse to gpx file
-            GPXparser gp = new GPXparser();
-            ArrayList<Waypoint> wpts = new ArrayList<>();
-            wpts = gp.parseGpx(new File(messageFromClient));
+                // parse to gpx file
+                GPXparser gp = new GPXparser();
+                ArrayList<Waypoint> wpts = new ArrayList<>();
+                wpts = gp.parseGpx(new File(messageFromClient));
 
-            // //print the ArrayList with the waypoints fron the gpx file
-            // for (int i=0;i<wpts.size();i++){
-            // System.out.println(wpts.get(i).toString());
-            // }
+                // //print the ArrayList with the waypoints fron the gpx file
+                // for (int i=0;i<wpts.size();i++){
+                // System.out.println(wpts.get(i).toString());
+                // }
 
-            // create a partition
-            // HashMap<String,ArrayList<String>> mymap = new HashMap<>();
-            ArrayList<HashMap<String, ArrayList<Waypoint>>> waypoints = new ArrayList<>(); // Arraylist<ArrayList<String>>
-            ArrayList<Waypoint> sublist1 = new ArrayList<>();
-            HashMap<String, ArrayList<Waypoint>> hashmap1 = new HashMap<>();
-            sublist1.add(wpts.get(0));
-            hashmap1.put(clientUsername, sublist1);
+                // create a partition
+                // HashMap<String,ArrayList<String>> mymap = new HashMap<>();
+                ArrayList<HashMap<String, ArrayList<Waypoint>>> waypoints = new ArrayList<>(); // Arraylist<ArrayList<String>>
+                HashMap<String, ArrayList<Waypoint>> hashmap1 = new HashMap<>();
 
-            ArrayList<Waypoint> sublist2 = new ArrayList<>();
-            HashMap<String, ArrayList<Waypoint>> hashmap2 = new HashMap<>();
-            sublist2.add(wpts.get(1));
-            sublist2.add(wpts.get(2));
-            hashmap2.put(clientUsername, sublist2);
+                hashmap1.put(clientUsername, wpts);
 
-            waypoints.add(hashmap1);
-            waypoints.add(hashmap2);
+                waypoints.add(hashmap1);
 
-            // for (int i=0;i<sublist1.size();i++){
-            // System.out.println("Sublist1: "+wpts.get(i).toString());
-            // }
-            // for (int i=0;i<sublist2.size();i++){
-            // System.out.println("Sublist2: "+wpts.get(i).toString());
-            // }
+                broadcastToWorker(messageFromClient, waypoints);
 
-            // waypoints.add(wpts.get(0));
-            // waypoints.add("Sublist2");
-            // waypoints.add("Sublist3");
+            } catch (IOException e) {
+                closeEverything(socket, bufferedReaderC, out);
 
-            broadcastToWorker(clientUsername, waypoints);
-
-        } catch (IOException e) {
-            closeEverything(socket, bufferedReaderC, out);
-
+            }
         }
 
     }
 
-    // public void broadcastToClient(String clientUsername, ArrayList<HashMap<String, ArrayList<Waypoint>>> waypoints) {
-
-    //     // steilto se olous tous clients
-    //     for (ClientHandler clientHandler : clientHandlers) {
-    //         try {
-    //             if (!clientHandler.clientUsername.equals(clientUsername)) {
-    //                 clientHandler.bufferedWriter.write(messageToSend);
-    //                 clientHandler.bufferedWriter.newLine();
-    //                 clientHandler.bufferedWriter.flush();
-    //             }
-    //         } catch (IOException e) {
-    //             closeEverything(socket, bufferedReaderC, out);
-    //             break;
-    //         }
-    //     }
-    // }
+    public static void broadcastToClient(String results) {
+        for (ClientHandler clientHandler : clientHandlers) {
+            try {
+                clientHandler.bufferedWriterC.newLine();
+                clientHandler.bufferedWriterC.write(results);
+                clientHandler.bufferedWriterC.flush();
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+        }
+    }
 
     public void broadcastToWorker(String clientUsername, ArrayList<HashMap<String, ArrayList<Waypoint>>> waypoints) {
         // steilto se olous tous workers
-        int i = 0;
 
         for (WorkerHandler workerHandler : WorkerHandler.workerHandlers) {
             try {
                 workerHandler.outW.writeObject(waypoints); // kathe Worker apo thn lista workerhandlers pairnei ena
                                                            // <clientname,[chunk]>
                 workerHandler.outW.flush();
-                i++;
+                System.out.println("Waypoints have been sent from Client Handler !");
+
             } catch (IOException e) {
                 closeEverything(socket, bufferedReaderC, out);
                 break;
