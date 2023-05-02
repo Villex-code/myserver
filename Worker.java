@@ -1,8 +1,6 @@
 import java.io.*;
 import java.net.*;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.Scanner;
+import java.util.*;
 
 public class Worker {
 
@@ -28,17 +26,12 @@ public class Worker {
         }
     }
 
-    public void sendMessage(ArrayList<HashMap<String, ArrayList<Waypoint>>> toSend) {
+    public void sendMessage(List<Double> toSend) {
         new Thread(new Runnable() {
             @Override
             public void run() {
                 // String msgFromGroupChat;
                 try {
-
-                    // h map tha parei to map kai tha to epistrepsei ta midresults
-                    // ArrayList<String> arr = new ArrayList<>();
-                    // arr.add("hi");
-                    // arr.add("hey");
 
                     out.writeObject(toSend);
 
@@ -54,24 +47,29 @@ public class Worker {
         new Thread(new Runnable() {
             @Override
             public void run() {
-                ArrayList<HashMap<String, ArrayList<Waypoint>>> listpart = new ArrayList<>();
+                List<Waypoint> listpart = new ArrayList<>();
                 System.out.println("Worker has started ");
                 while (true) {
                     try {
-                        listpart = (ArrayList<HashMap<String, ArrayList<Waypoint>>>) in.readObject();
+                        System.out.println("Worker is listening for an object ...");
 
-                        System.out.println("Eimai ston Worker kai phra list me: name: " + listpart.get(0).get("user1"));
-                        System.out.println(listpart.get(0));
+                        listpart = (List<Waypoint>) in.readObject();
 
-                        sendMessage(listpart);
+                        System.out.println("Eimai ston Worker kai phra list : " + listpart);
+
+                        List<Double> worker_results = MapReduce.Process(listpart);
+
+                        sendMessage(worker_results);
 
                     } catch (IOException e) {
-                        System.out.println("Shuting down worker because of exception");
+
                         closeEverything(socket, in, out);
+                        break;
 
                     } catch (ClassNotFoundException e) {
-                        // TODO Auto-generated catch block
+                        System.out.println("There was an error ClassNotFound in worker");
                         e.printStackTrace();
+                        break;
                     }
                 }
             }
@@ -81,6 +79,7 @@ public class Worker {
 
     public void closeEverything(Socket socket, ObjectInputStream in, ObjectOutputStream out) {
         try {
+            System.out.println("Shutting down everything in worker");
             if (in != null) {
                 in.close();
             }

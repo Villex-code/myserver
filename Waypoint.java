@@ -1,51 +1,58 @@
 import java.io.Serializable;
 import java.sql.Time;
 
-public class Waypoint implements Serializable{
+public class Waypoint implements Serializable {
     double lattitude;
     double longitude;
-    Time time;
+    String time;
     double ele;
 
-    public Waypoint(double lattitude, double longitude, Time time, double ele ){
+    public Waypoint(double lattitude, double longitude, String time, double ele) {
         this.lattitude = lattitude;
         this.longitude = longitude;
         this.time = time;
         this.ele = ele;
     }
 
-    //getters
+    // getters
     public double getLattitude() {
         return lattitude;
-    } 
-    public Time getTime() {
+    }
+
+    public String getTime() {
         return time;
     }
+
     public double getLongitude() {
         return longitude;
     }
+
     public double getEle() {
         return ele;
     }
-     
-    //setters
+
+    // setters
     public void setLattitude(double lattitude) {
         this.lattitude = lattitude;
     }
+
     public void setLongitude(double longitude) {
         this.longitude = longitude;
     }
+
     public void setELE(double ele) {
         this.ele = ele;
     }
-    public void setTime(Time time) {
+
+    public void setTime(String time) {
         this.time = time;
     }
 
     @Override
     public String toString() {
         // TODO Auto-generated method stub
-        String r = "Waypoint: lattitude: "+getLattitude()+" , longitude: "+getLongitude()+" , elevation: "+getEle()+" , Time: "+getTime();
+        String r = "Waypoint: lattitude: " + getLattitude() + " , longitude: " + getLongitude() + " , elevation: "
+                + getEle() + " , Time: " + getTime();
         return r;
     }
 }

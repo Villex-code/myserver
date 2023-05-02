@@ -14,7 +14,7 @@ public class Server {
         System.out.println("Chat app has started");
 
         int count = 0;
-        int workerAmount = 2;
+        int workerAmount = 1;
 
         try {
             while (!serverSocket.isClosed()) {
@@ -41,8 +41,11 @@ public class Server {
                 Thread thread = new Thread(clientHandler);
                 thread.start();
             }
-        } catch (IOException e) {
+        } catch (Exception e) {
+            e.printStackTrace();
+            System.out.println("There was an exception in the SERVER");
             closeServerSocket();
+
         }
     }
 

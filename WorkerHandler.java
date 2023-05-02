@@ -40,15 +40,15 @@ public class WorkerHandler implements Runnable {
     @Override
     public void run() {
         // String messageFromClient;
-        ArrayList<HashMap<String, ArrayList<Waypoint>>> midresults;
+        List<Double> midresults;
         int workerReturn = 0;
         while (true) {
             try {
 
-                midresults = (ArrayList<HashMap<String, ArrayList<Waypoint>>>) inW.readObject();
+                midresults = (List<Double>) inW.readObject();
 
                 System.out
-                        .println("Eimai ston Workerhandler kai exw ta intermediate results: " + midresults.get(0));
+                        .println("Eimai ston Workerhandler kai exw ta mid results: " + midresults);
                 System.out.println("Eimai ston Workerhandler kai exw workers: " + workerHandlers.size());
 
                 // gia kathe user metra X epistrofes

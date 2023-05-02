@@ -37,7 +37,7 @@ public class ClientHandler implements Runnable {
     @Override
     public void run() {
         String messageFromClient;
-        while (this.socket.isConnected()) {
+        while (socket.isConnected()) {
             try {
                 System.out.println("Waiting in the clientHandler for a message ...");
 
@@ -51,28 +51,43 @@ public class ClientHandler implements Runnable {
                 ArrayList<Waypoint> wpts = new ArrayList<>();
                 wpts = gp.parseGpx(new File(messageFromClient));
 
-                // //print the ArrayList with the waypoints fron the gpx file
-                // for (int i=0;i<wpts.size();i++){
-                // System.out.println(wpts.get(i).toString());
-                // }
+                List<List<Waypoint>> partitions = MapReduce.Mapping(messageFromClient, wpts);
 
-                // create a partition
-                // HashMap<String,ArrayList<String>> mymap = new HashMap<>();
-                ArrayList<HashMap<String, ArrayList<Waypoint>>> waypoints = new ArrayList<>(); // Arraylist<ArrayList<String>>
-                HashMap<String, ArrayList<Waypoint>> hashmap1 = new HashMap<>();
+                System.out.println("Partitions in the clientHandler are : " + partitions);
 
-                hashmap1.put(clientUsername, wpts);
+                HashMap<String, List<List<Waypoint>>> hashmap1 = new HashMap<>();
 
-                waypoints.add(hashmap1);
+                hashmap1.put("user1", partitions);
 
-                broadcastToWorker(messageFromClient, waypoints);
+                broadcastToWorker(messageFromClient, partitions);
 
-            } catch (IOException e) {
+            } catch (Exception e) {
+                System.out.println("There was an exception in the ClientHandler");
                 closeEverything(socket, bufferedReaderC, out);
-
+                break;
             }
         }
 
+    }
+
+    public void broadcastToWorker(String clientUsername, List<List<Waypoint>> waypoints) {
+        // steilto se olous tous workers
+        int i = 0;
+        for (WorkerHandler workerHandler : WorkerHandler.workerHandlers) {
+            try {
+                System.out.println(waypoints.get(i) + " is what the worker" + i + " will get");
+
+                workerHandler.outW.writeObject(waypoints.get(i)); // kathe Worker apo thn lista
+
+                workerHandler.outW.flush();
+                i++;
+                System.out.println("Waypoints have been sent from Client Handler !");
+
+            } catch (IOException e) {
+                closeEverything(socket, bufferedReaderC, out);
+                break;
+            }
+        }
     }
 
     public static void broadcastToClient(String results) {
@@ -83,23 +98,6 @@ public class ClientHandler implements Runnable {
                 clientHandler.bufferedWriterC.flush();
             } catch (Exception e) {
                 e.printStackTrace();
-            }
-        }
-    }
-
-    public void broadcastToWorker(String clientUsername, ArrayList<HashMap<String, ArrayList<Waypoint>>> waypoints) {
-        // steilto se olous tous workers
-
-        for (WorkerHandler workerHandler : WorkerHandler.workerHandlers) {
-            try {
-                workerHandler.outW.writeObject(waypoints); // kathe Worker apo thn lista workerhandlers pairnei ena
-                                                           // <clientname,[chunk]>
-                workerHandler.outW.flush();
-                System.out.println("Waypoints have been sent from Client Handler !");
-
-            } catch (IOException e) {
-                closeEverything(socket, bufferedReaderC, out);
-                break;
             }
         }
     }

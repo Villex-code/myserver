@@ -30,12 +30,16 @@ public class Client {
             public void run() {
                 // String msgFromGroupChat;
                 try {
+
                     bufferedWriter.write(gpxfile);
                     bufferedWriter.newLine();
                     bufferedWriter.flush();
+                    System.out.println("Client has sent the message : " + gpxfile);
                 } catch (IOException e) {
                     // TODO Auto-generated catch block
                     e.printStackTrace();
+                    System.out.println("There was an error in the Client sendMessage");
+
                 }
 
             }
@@ -49,13 +53,17 @@ public class Client {
                 while (socket.isConnected()) {
 
                     try {
+
+                        System.out.println("Client is waiting for results ");
+
                         String results = bufferedReader.readLine();
 
-                        System.out.println(results);
+                        System.out.println("My results are " + results);
 
                     } catch (IOException e) {
                         System.out.println("Had an issue receiving the message ");
                         e.printStackTrace();
+                        break;
                     }
                 }
 
@@ -65,6 +73,7 @@ public class Client {
 
     public void closeEverything(Socket socket, ObjectInputStream in, BufferedWriter bufferedWriter) {
         try {
+            System.out.println("Shutting down everything in client");
             if (in != null) {
                 in.close();
             }
