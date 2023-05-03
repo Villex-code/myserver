@@ -11,8 +11,10 @@ public class WorkerHandler implements Runnable {
     public static ArrayList<WorkerHandler> workerHandlers = new ArrayList<>();
     private Socket socket;
     public static int f = 0;
+    public ArrayList<ArrayList<Double>> for_reduce = new ArrayList<>();
     // public BufferedReader bufferedReader;
     // public BufferedWriter bufferedWriter;
+    public static int counting = 0;
     public ObjectOutputStream outW;
     public ObjectInputStream inW;
     private String workerUsername;
@@ -40,22 +42,26 @@ public class WorkerHandler implements Runnable {
     @Override
     public void run() {
         // String messageFromClient;
-        List<Double> midresults;
-        int workerReturn = 0;
+        ArrayList<Double> midresults;
+
         while (true) {
             try {
 
-                midresults = (List<Double>) inW.readObject();
+                midresults = (ArrayList<Double>) inW.readObject();
+                for_reduce.add(midresults);
 
                 System.out
-                        .println("Eimai ston Workerhandler kai exw ta mid results: " + midresults);
+                        .println("Eimai ston Workerhandler kai thn for reduce: " + for_reduce);
                 System.out.println("Eimai ston Workerhandler kai exw workers: " + workerHandlers.size());
 
-                // gia kathe user metra X epistrofes
-                // an einai X kane Reduce
+                WorkerHandler.counting++;
 
-                String finalResults = midresults.toString();
-                String tempMessage = "Hello there client , this is a message from Worker Handler ";
+                WorkerHandler.counting = 0;
+                System.out.println("Kanw reduce ta mid results pou einai : " + for_reduce);
+
+                ArrayList<Double> finalResults = MapReduce.Reduce("Jimmy", for_reduce);
+
+                System.out.println("Ta final results einai : " + finalResults);
 
                 ClientHandler.broadcastToClient(finalResults);
 

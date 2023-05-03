@@ -14,7 +14,7 @@ public class Server {
         System.out.println("Chat app has started");
 
         int count = 0;
-        int workerAmount = 1;
+        int workerAmount = 2;
 
         try {
             while (!serverSocket.isClosed()) {

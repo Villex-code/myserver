@@ -5,21 +5,23 @@ import java.time.temporal.ChronoUnit;
 
 public class MapReduce {
 
-    public static List<List<Waypoint>> Mapping(String pathname, List<Waypoint> waypoints) {
+    public static ArrayList<ArrayList<Waypoint>> Mapping(String pathname, ArrayList<Waypoint> waypoints) {
 
-        final int Workers_size = 1;
+        final int Workers_size = 2;
 
-        int partitionSize = (int) Math.ceil((double) waypoints.size() / Workers_size);
+        // int partitionSize = (int) Math.ceil((double) waypoints.size() /
+        // Workers_size);
+        int partitionSize = 10;
 
         if (partitionSize == 1) {
-            System.out.println("Too many workers for too little waypoints ");
+            System.out.println("Too little waypoints ");
             partitionSize += 1;
         }
 
         System.out.println("Partition size : " + partitionSize + " with a total points of " + waypoints.size());
 
         // Create a list to hold the partitions
-        List<List<Waypoint>> partitions = new ArrayList<>();
+        ArrayList<ArrayList<Waypoint>> partitions = new ArrayList<>();
 
         // Divide the waypoints list into partitions of size partitionSize
         for (int i = 0; i < waypoints.size(); i += partitionSize) {
@@ -31,7 +33,8 @@ public class MapReduce {
             }
 
             System.out.println(endIndex + " : " + waypoints.size());
-            List<Waypoint> partition = waypoints.subList(i, endIndex);
+            ArrayList<Waypoint> partition = new ArrayList<>(waypoints.subList(i, endIndex));
+
             System.out.println(i + " " + endIndex);
             partitions.add(partition);
         }
@@ -39,14 +42,43 @@ public class MapReduce {
         return partitions;
     }
 
-    public static List<Double> Process(List<Waypoint> Waypoints) {
+    public static ArrayList<Double> Reduce(String out_key, ArrayList<ArrayList<Double>> inter) {
 
-        List<Double> results_here = new ArrayList<Double>();
+        Double total_elevation = 0.0;
+        Double total_distance = 0.0;
+        Double total_time = 0.0;
+        Double total_average_speed = 0.0;
+
+        ArrayList<Double> finallized = new ArrayList<>();
+
+        for (int i = 0; i < inter.size(); i++) {
+            total_elevation += inter.get(i).get(0);
+            total_distance += inter.get(i).get(1);
+            total_time += inter.get(i).get(2);
+
+        }
+
+        total_average_speed = total_distance / total_time;
+
+        finallized.add(total_elevation);
+        finallized.add(total_distance);
+        finallized.add(total_time);
+        finallized.add(total_average_speed);
+
+        return finallized;
+    }
+
+    public static ArrayList<Double> Process(ArrayList<Waypoint> Waypoints) {
+
+        ArrayList<Double> results_here = new ArrayList<Double>();
 
         Double climb = 0.0;
         Double distance = 0.0;
         Double time = 0.0;
         Double speed = 0.0;
+
+        System.out.println("Processing Waypoints ... " + Waypoints);
+        System.out.println("Size is : " + Waypoints.size());
 
         if (Waypoints.size() == 1) {
             System.out.println("You gave me a very small portion of Waypoints");
@@ -62,6 +94,7 @@ public class MapReduce {
 
             Double cur_ele = current_Waypoint.getEle();
             Double prev_ele = previous_Waypoint.getEle();
+
             Double ele_dif = cur_ele - prev_ele;
 
             if (ele_dif > 0) {
@@ -73,14 +106,15 @@ public class MapReduce {
 
             double cur_lat = current_Waypoint.getLattitude();
             double cur_lon = current_Waypoint.getLongitude();
+
             double prev_lat = previous_Waypoint.getLattitude();
             double prev_lon = previous_Waypoint.getLongitude();
 
             distance += Distance.distance(cur_lat, cur_lon, prev_lat, prev_lon);
 
-            // time
-            time += time_dif(current_Waypoint.getTime(), previous_Waypoint.getTime());
-
+            // strings
+            // time += time_dif(current_Waypoint.getTime(), previous_Waypoint.getTime());
+            time += 1;
         }
 
         speed = distance / time;
@@ -95,6 +129,8 @@ public class MapReduce {
     }
 
     public static Double time_dif(String cur_time_str, String prev_time_str) {
+
+        System.out.println("I am in the time diff with " + cur_time_str + " and : " + prev_time_str);
 
         Instant cur_time = Instant.parse(cur_time_str);
         Instant prev_time = Instant.parse(prev_time_str);

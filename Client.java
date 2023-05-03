@@ -15,7 +15,7 @@ public class Client {
         try {
             this.socket = socket;
             this.gpxfile = gpxfile;
-            // in = new ObjectInputStream(socket.getInputStream());
+            in = new ObjectInputStream(socket.getInputStream());
             this.bufferedReader = new BufferedReader(new InputStreamReader(socket.getInputStream()));
             this.bufferedWriter = new BufferedWriter(new OutputStreamWriter(socket.getOutputStream()));
 
@@ -34,6 +34,7 @@ public class Client {
                     bufferedWriter.write(gpxfile);
                     bufferedWriter.newLine();
                     bufferedWriter.flush();
+
                     System.out.println("Client has sent the message : " + gpxfile);
                 } catch (IOException e) {
                     // TODO Auto-generated catch block
@@ -50,20 +51,32 @@ public class Client {
         new Thread(new Runnable() {
             @Override
             public void run() {
-                while (socket.isConnected()) {
 
+                while (true) {
                     try {
 
                         System.out.println("Client is waiting for results ");
 
-                        String results = bufferedReader.readLine();
+                        ArrayList<Double> results = (ArrayList<Double>) in.readObject();
 
                         System.out.println("My results are " + results);
+
+                        if (results.size() == 4) {
+                            System.out.println("Your total climb was : " + results.get(0));
+                            System.out.println("Your total distance was : " + results.get(1));
+                            System.out.println("Your total time was : " + results.get(2));
+                            System.out.println("Your average speed was : " + results.get(3));
+                        }
 
                     } catch (IOException e) {
                         System.out.println("Had an issue receiving the message ");
                         e.printStackTrace();
-                        break;
+
+                    } catch (ClassNotFoundException e) {
+                        // TODO Auto-generated catch block
+                        e.printStackTrace();
+                        System.out.println("Class not found here");
+
                     }
                 }
 

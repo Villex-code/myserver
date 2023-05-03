@@ -34,6 +34,7 @@ public class Worker {
                 try {
 
                     out.writeObject(toSend);
+                    out.flush();
 
                 } catch (IOException e) {
                     closeEverything(socket, in, out);
@@ -47,17 +48,23 @@ public class Worker {
         new Thread(new Runnable() {
             @Override
             public void run() {
-                List<Waypoint> listpart = new ArrayList<>();
+                ArrayList<Waypoint> listpart = new ArrayList<>();
                 System.out.println("Worker has started ");
                 while (true) {
                     try {
                         System.out.println("Worker is listening for an object ...");
 
-                        listpart = (List<Waypoint>) in.readObject();
+                        listpart = (ArrayList<Waypoint>) in.readObject();
 
                         System.out.println("Eimai ston Worker kai phra list : " + listpart);
 
-                        List<Double> worker_results = MapReduce.Process(listpart);
+                        ArrayList<Double> worker_results = MapReduce.Process(listpart);
+
+                        ArrayList<Double> temp_results = new ArrayList<>();
+                        temp_results.add(0.4);
+                        temp_results.add(0.4);
+                        temp_results.add(0.4);
+                        temp_results.add(0.4);
 
                         sendMessage(worker_results);
 

@@ -10,11 +10,12 @@ import org.w3c.dom.Element;
 import org.w3c.dom.NodeList;
 
 public class GPXparser {
-    
-    //defaut constuctor 
-    GPXparser(){}
 
-    //function patseGpx which analyzes the gpx file
+    // defaut constuctor
+    GPXparser() {
+    }
+
+    // function patseGpx which analyzes the gpx file
     public ArrayList<Waypoint> parseGpx(File file) {
 
         ArrayList<Waypoint> waypoints = new ArrayList<>();
@@ -30,14 +31,15 @@ public class GPXparser {
                 double lon = Double.parseDouble(wptElement.getAttribute("lon"));
                 String eleString = wptElement.getElementsByTagName("ele").item(0).getTextContent();
                 double ele = Double.parseDouble(eleString);
-                //System.out.println("lattitude is: "+ lat);
-                //System.out.println("longitude is: "+ lon);
-                //System.out.println("ELE is: "+ele);
+                // System.out.println("lattitude is: "+ lat);
+                // System.out.println("longitude is: "+ lon);
+                // System.out.println("ELE is: "+ele);
                 String timeString = wptElement.getElementsByTagName("time").item(0).getTextContent();
-                DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm:ss'Z'"); //mia diorthosi edw
-                LocalDateTime dateTime = LocalDateTime.parse(timeString, formatter); //dateTime, Time?
-                //System.out.println("time is: "+ dateTime);
-                waypoints.add(new Waypoint(lat, lon, null , ele)); 
+                DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm:ss'Z'"); // mia diorthosi
+                                                                                                       // edw
+                LocalDateTime dateTime = LocalDateTime.parse(timeString, formatter); // dateTime, Time?
+                // System.out.println("time is: "+ dateTime);
+                waypoints.add(new Waypoint(lat, lon, null, ele));
             }
         } catch (Exception e) {
             e.printStackTrace();
@@ -45,11 +47,10 @@ public class GPXparser {
         return waypoints;
     }
 
-    //---------------------TESTING-----------------//
+    // ---------------------TESTING-----------------//
     public static void main(String[] args) {
         GPXparser g1 = new GPXparser();
         File file1 = new File("route1.gpx");
         g1.parseGpx(file1);
     }
 }
-
