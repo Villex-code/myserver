@@ -11,6 +11,7 @@ public class MapReduce {
 
         // int partitionSize = (int) Math.ceil((double) waypoints.size() /
         // Workers_size);
+
         int partitionSize = 10;
 
         if (partitionSize == 1) {
@@ -76,9 +77,6 @@ public class MapReduce {
         Double distance = 0.0;
         Double time = 0.0;
         Double speed = 0.0;
-
-        System.out.println("Processing Waypoints ... " + Waypoints);
-        System.out.println("Size is : " + Waypoints.size());
 
         if (Waypoints.size() == 1) {
             System.out.println("You gave me a very small portion of Waypoints");

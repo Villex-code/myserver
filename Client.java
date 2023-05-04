@@ -36,6 +36,7 @@ public class Client {
                     bufferedWriter.flush();
 
                     System.out.println("Client has sent the message : " + gpxfile);
+
                 } catch (IOException e) {
                     // TODO Auto-generated catch block
                     e.printStackTrace();
@@ -47,7 +48,7 @@ public class Client {
         }).start();
     }
 
-    public void listenForMessage() {
+    public synchronized void listenForMessage() {
         new Thread(new Runnable() {
             @Override
             public void run() {

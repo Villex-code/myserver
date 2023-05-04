@@ -10,38 +10,31 @@ public class Worker {
     private ObjectInputStream in;
     private ObjectOutputStream out;
     private String username;
+
     HashMap<String, ArrayList<String>> mymap = new HashMap<>();
 
     public Worker(Socket socket) {
         try {
             this.socket = socket;
-            // this.bufferedReader = new BufferedReader(new
-            // InputStreamReader(socket.getInputStream()));
-            // this.bufferedWriter = new BufferedWriter(new
-            // OutputStreamWriter(socket.getOutputStream()));
-            out = new ObjectOutputStream(socket.getOutputStream());
-            in = new ObjectInputStream(socket.getInputStream());
+            this.out = new ObjectOutputStream(socket.getOutputStream());
+            this.in = new ObjectInputStream(socket.getInputStream());
         } catch (IOException e) {
             closeEverything(socket, in, out);
         }
     }
 
-    public void sendMessage(List<Double> toSend) {
-        new Thread(new Runnable() {
-            @Override
-            public void run() {
-                // String msgFromGroupChat;
-                try {
+    public synchronized void sendMessage(List<Double> toSend) {
 
-                    out.writeObject(toSend);
-                    out.flush();
+        try {
 
-                } catch (IOException e) {
-                    closeEverything(socket, in, out);
-                }
+            out.writeObject(toSend);
+            out.flush();
 
-            }
-        }).start();
+        } catch (IOException e) {
+            System.out.println("Had an issue sending message in the worker");
+            closeEverything(socket, in, out);
+        }
+
     }
 
     public void listenForMessage() {
@@ -52,6 +45,7 @@ public class Worker {
                 System.out.println("Worker has started ");
                 while (true) {
                     try {
+
                         System.out.println("Worker is listening for an object ...");
 
                         listpart = (ArrayList<Waypoint>) in.readObject();
@@ -59,12 +53,6 @@ public class Worker {
                         System.out.println("Eimai ston Worker kai phra list : " + listpart);
 
                         ArrayList<Double> worker_results = MapReduce.Process(listpart);
-
-                        ArrayList<Double> temp_results = new ArrayList<>();
-                        temp_results.add(0.4);
-                        temp_results.add(0.4);
-                        temp_results.add(0.4);
-                        temp_results.add(0.4);
 
                         sendMessage(worker_results);
 

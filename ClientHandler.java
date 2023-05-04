@@ -14,10 +14,16 @@ public class ClientHandler implements Runnable {
     public BufferedReader bufferedReaderC;
     public BufferedWriter bufferedWriterC;
     public ObjectOutputStream out;
+    public static int partition_size;
+
+    public static ArrayList<ArrayList<Double>> for_reduce;
+
     private String clientUsername;
 
     public ClientHandler(Socket socket) {
         try {
+
+            this.for_reduce = new ArrayList<>();
             this.socket = socket;
             out = new ObjectOutputStream(socket.getOutputStream());
             this.bufferedWriterC = new BufferedWriter(new OutputStreamWriter(socket.getOutputStream()));
@@ -52,6 +58,7 @@ public class ClientHandler implements Runnable {
                 wpts = gp.parseGpx(new File(messageFromClient));
 
                 ArrayList<ArrayList<Waypoint>> partitions = MapReduce.Mapping(messageFromClient, wpts);
+                partition_size = partitions.size();
 
                 // System.out.println("Partitions in the clientHandler are : " + partitions);
 
@@ -73,12 +80,16 @@ public class ClientHandler implements Runnable {
         // steilto se olous tous workers
 
         int size = WorkerHandler.workerHandlers.size();
+
         for (int i = 0; i < waypoints.size(); i++) {
 
             try {
                 int to_worker = i % size;
+
                 WorkerHandler.workerHandlers.get(to_worker).outW.writeObject(waypoints.get(i));
-                System.out.println("Waypoints have been sent from Client Handler !" + i);
+                WorkerHandler.workerHandlers.get(to_worker).outW.flush();
+
+                System.out.println("Waypoints have been sent from Client Handler ! " + i);
 
             } catch (IOException e) {
                 closeEverything(socket, bufferedReaderC, out);
@@ -94,15 +105,25 @@ public class ClientHandler implements Runnable {
         }
     }
 
-    public static void broadcastToClient(ArrayList<Double> results) {
-        for (ClientHandler clientHandler : clientHandlers) {
+    public synchronized static void broadcastToClient(ArrayList<Double> results) {
+        System.out.println("I am in the broadcastToClient in client handler and I will deliver " + results);
+
+        for_reduce.add(results);
+
+        if (for_reduce.size() == partition_size) {
             try {
-                clientHandler.out.writeObject(results);
-                clientHandler.bufferedWriterC.flush();
+                ArrayList<Double> tosend = MapReduce.Reduce("client1", for_reduce);
+                ClientHandler.clientHandlers.get(0).out.writeObject(tosend);
+                ClientHandler.clientHandlers.get(0).out.flush();
+
             } catch (Exception e) {
+
+                System.out.println("There was an error in the BroadcasttoClinet in the ClientHandler");
                 e.printStackTrace();
+
             }
         }
+
     }
 
     // public void removeClientHandler() {

@@ -15,8 +15,10 @@ public class WorkerHandler implements Runnable {
     // public BufferedReader bufferedReader;
     // public BufferedWriter bufferedWriter;
     public static int counting = 0;
+
     public ObjectOutputStream outW;
     public ObjectInputStream inW;
+
     private String workerUsername;
 
     public WorkerHandler(Socket socket) {
@@ -26,8 +28,10 @@ public class WorkerHandler implements Runnable {
             // OutputStreamWriter(socket.getOutputStream()));
             // this.bufferedReader = new BufferedReader(new
             // InputStreamReader(socket.getInputStream()));
-            outW = new ObjectOutputStream(socket.getOutputStream());
-            inW = new ObjectInputStream(socket.getInputStream());
+
+            this.outW = new ObjectOutputStream(socket.getOutputStream());
+            this.inW = new ObjectInputStream(socket.getInputStream());
+
             f++;
             workerUsername = "worker" + f;
             workerHandlers.add(this);
@@ -47,31 +51,45 @@ public class WorkerHandler implements Runnable {
         while (true) {
             try {
 
+                // for (int i = 0; i < 3; i++) {
+
                 midresults = (ArrayList<Double>) inW.readObject();
+
                 for_reduce.add(midresults);
 
-                System.out
-                        .println("Eimai ston Workerhandler kai thn for reduce: " + for_reduce);
-                System.out.println("Eimai ston Workerhandler kai exw workers: " + workerHandlers.size());
+                // }
 
-                WorkerHandler.counting++;
+                // System.out
+                // .println("Eimai ston Workerhandler kai thn for reduce: " + for_reduce);
+                // System.out.println("Eimai ston Workerhandler kai exw workers: " +
+                // workerHandlers.size());
 
-                WorkerHandler.counting = 0;
-                System.out.println("Kanw reduce ta mid results pou einai : " + for_reduce);
+                // WorkerHandler.counting++;
 
-                ArrayList<Double> finalResults = MapReduce.Reduce("Jimmy", for_reduce);
+                // WorkerHandler.counting = 0;
+                // System.out.println("Kanw reduce ta mid results pou einai : " + for_reduce);
 
-                System.out.println("Ta final results einai : " + finalResults);
+                // ArrayList<Double> finalResults = MapReduce.Reduce("Jimmy", for_reduce);
 
-                ClientHandler.broadcastToClient(finalResults);
+                // System.out.println("Ta final results einai : " + finalResults);
+
+                ArrayList<Double> temp_message = new ArrayList<>();
+
+                temp_message.add(0.4);
+                temp_message.add(0.5);
+                temp_message.add(0.5);
+                temp_message.add(0.6);
+
+                ClientHandler.broadcastToClient(midresults);
 
                 System.out.println("-------------");
                 System.out.println("Sending to client done !");
                 System.out.println("-------------");
+            } catch (Exception e) {
 
-            } catch (ClassNotFoundException | IOException e) {
-                // TODO Auto-generated catch block
+                System.out.println("Had an exception in the workerhandler");
                 e.printStackTrace();
+
             }
         }
 
@@ -81,6 +99,7 @@ public class WorkerHandler implements Runnable {
 
         // steilto se olous tous clients
         String messageToSend = "client took the message";
+
         for (ClientHandler clientHandler : ClientHandler.clientHandlers) {
             try {
 
