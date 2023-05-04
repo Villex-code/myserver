@@ -53,32 +53,30 @@ public class Client {
             @Override
             public void run() {
 
-                while (true) {
-                    try {
+                try {
 
-                        System.out.println("Client is waiting for results ");
+                    System.out.println("Client is waiting for results ");
 
-                        ArrayList<Double> results = (ArrayList<Double>) in.readObject();
+                    ArrayList<Double> results = (ArrayList<Double>) in.readObject();
 
-                        System.out.println("My results are " + results);
+                    System.out.println("My results are " + results);
 
-                        if (results.size() == 4) {
-                            System.out.println("Your total climb was : " + results.get(0));
-                            System.out.println("Your total distance was : " + results.get(1));
-                            System.out.println("Your total time was : " + results.get(2));
-                            System.out.println("Your average speed was : " + results.get(3));
-                        }
-
-                    } catch (IOException e) {
-                        System.out.println("Had an issue receiving the message ");
-                        e.printStackTrace();
-
-                    } catch (ClassNotFoundException e) {
-                        // TODO Auto-generated catch block
-                        e.printStackTrace();
-                        System.out.println("Class not found here");
-
+                    if (results.size() == 4) {
+                        System.out.println("Your total climb was : " + results.get(0));
+                        System.out.println("Your total distance was : " + results.get(1));
+                        System.out.println("Your total time was : " + results.get(2));
+                        System.out.println("Your average speed was : " + results.get(3));
                     }
+
+                } catch (IOException e) {
+                    System.out.println("Had an issue receiving the message ");
+                    e.printStackTrace();
+
+                } catch (ClassNotFoundException e) {
+                    // TODO Auto-generated catch block
+                    e.printStackTrace();
+                    System.out.println("Class not found here");
+
                 }
 
             }
@@ -110,6 +108,7 @@ public class Client {
         String gpxfile = scanner.nextLine();
         Socket socket = new Socket("localhost", 1234);
         Client client = new Client(socket, gpxfile);
+
         client.listenForMessage();
         client.sendMessage();
     }

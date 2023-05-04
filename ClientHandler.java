@@ -16,14 +16,16 @@ public class ClientHandler implements Runnable {
     public ObjectOutputStream out;
     public static int partition_size;
 
-    public static ArrayList<ArrayList<Double>> for_reduce;
+    public static HashMap<String, ArrayList<ArrayList<Waypoint>>> Userlog = new HashMap();
+
+    public static HashMap<String, ArrayList<ArrayList<Double>>> for_reduce;
 
     private String clientUsername;
 
     public ClientHandler(Socket socket) {
         try {
 
-            this.for_reduce = new ArrayList<>();
+            this.for_reduce = new HashMap<>();
             this.socket = socket;
             out = new ObjectOutputStream(socket.getOutputStream());
             this.bufferedWriterC = new BufferedWriter(new OutputStreamWriter(socket.getOutputStream()));
@@ -45,6 +47,7 @@ public class ClientHandler implements Runnable {
         String messageFromClient;
         while (socket.isConnected()) {
             try {
+
                 System.out.println("Waiting in the clientHandler for a message ...");
 
                 messageFromClient = bufferedReaderC.readLine();
@@ -58,13 +61,16 @@ public class ClientHandler implements Runnable {
                 wpts = gp.parseGpx(new File(messageFromClient));
 
                 ArrayList<ArrayList<Waypoint>> partitions = MapReduce.Mapping(messageFromClient, wpts);
+
                 partition_size = partitions.size();
+
+                Userlog.put(clientUsername, partitions);
 
                 // System.out.println("Partitions in the clientHandler are : " + partitions);
 
                 // HashMap<String, ArrayList<ArrayList<Waypoint>>> hashmap1 = new HashMap<>();
 
-                broadcastToWorker(messageFromClient, partitions);
+                broadcastToWorker(clientUsername, partitions);
 
             } catch (Exception e) {
                 System.out.println("There was an exception in the ClientHandler");
@@ -86,7 +92,12 @@ public class ClientHandler implements Runnable {
             try {
                 int to_worker = i % size;
 
-                WorkerHandler.workerHandlers.get(to_worker).outW.writeObject(waypoints.get(i));
+                ArrayList<Waypoint> to_proccess = waypoints.get(i);
+                HashMap<String, ArrayList<Waypoint>> sendingHash = new HashMap<>();
+
+                sendingHash.put(clientUsername, to_proccess);
+
+                WorkerHandler.workerHandlers.get(to_worker).outW.writeObject(sendingHash);
                 WorkerHandler.workerHandlers.get(to_worker).outW.flush();
 
                 System.out.println("Waypoints have been sent from Client Handler ! " + i);
@@ -105,16 +116,18 @@ public class ClientHandler implements Runnable {
         }
     }
 
-    public synchronized static void broadcastToClient(ArrayList<Double> results) {
+    public synchronized static void broadcastToClient(ArrayList<Double> results, String clientName) {
         System.out.println("I am in the broadcastToClient in client handler and I will deliver " + results);
 
-        for_reduce.add(results);
+        for_reduce.get(clientName).add(results);
 
-        if (for_reduce.size() == partition_size) {
+        if (for_reduce.get(clientName).size() == Userlog.get(clientName).size()) {
             try {
-                ArrayList<Double> tosend = MapReduce.Reduce("client1", for_reduce);
+                ArrayList<Double> tosend = MapReduce.Reduce("client1", for_reduce.get(clientName));
                 ClientHandler.clientHandlers.get(0).out.writeObject(tosend);
                 ClientHandler.clientHandlers.get(0).out.flush();
+
+                ClientHandler.clientHandlers.remove(0);
 
             } catch (Exception e) {
 

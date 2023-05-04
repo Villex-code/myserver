@@ -15,8 +15,10 @@ public class MapReduce {
         int partitionSize = 10;
 
         if (partitionSize == 1) {
+
             System.out.println("Too little waypoints ");
             partitionSize += 1;
+
         }
 
         System.out.println("Partition size : " + partitionSize + " with a total points of " + waypoints.size());

@@ -41,18 +41,20 @@ public class Worker {
         new Thread(new Runnable() {
             @Override
             public void run() {
-                ArrayList<Waypoint> listpart = new ArrayList<>();
+                HashMap<String, ArrayList<Waypoint>> listpart = new HashMap<>();
                 System.out.println("Worker has started ");
                 while (true) {
                     try {
 
                         System.out.println("Worker is listening for an object ...");
 
-                        listpart = (ArrayList<Waypoint>) in.readObject();
+                        listpart = (HashMap<String, ArrayList<Waypoint>>) in.readObject();
+
+                        String clientUsername = listpart.keySet();
 
                         System.out.println("Eimai ston Worker kai phra list : " + listpart);
 
-                        ArrayList<Double> worker_results = MapReduce.Process(listpart);
+                        ArrayList<Double> worker_results = MapReduce.Process(listpart.get();
 
                         sendMessage(worker_results);
 

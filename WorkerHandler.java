@@ -51,36 +51,20 @@ public class WorkerHandler implements Runnable {
         while (true) {
             try {
 
-                // for (int i = 0; i < 3; i++) {
+                String client_name;
 
                 midresults = (ArrayList<Double>) inW.readObject();
 
                 for_reduce.add(midresults);
 
-                // }
+                // ArrayList<Double> temp_message = new ArrayList<>();
 
-                // System.out
-                // .println("Eimai ston Workerhandler kai thn for reduce: " + for_reduce);
-                // System.out.println("Eimai ston Workerhandler kai exw workers: " +
-                // workerHandlers.size());
+                // temp_message.add(0.4);
+                // temp_message.add(0.5);
+                // temp_message.add(0.5);
+                // temp_message.add(0.6);
 
-                // WorkerHandler.counting++;
-
-                // WorkerHandler.counting = 0;
-                // System.out.println("Kanw reduce ta mid results pou einai : " + for_reduce);
-
-                // ArrayList<Double> finalResults = MapReduce.Reduce("Jimmy", for_reduce);
-
-                // System.out.println("Ta final results einai : " + finalResults);
-
-                ArrayList<Double> temp_message = new ArrayList<>();
-
-                temp_message.add(0.4);
-                temp_message.add(0.5);
-                temp_message.add(0.5);
-                temp_message.add(0.6);
-
-                ClientHandler.broadcastToClient(midresults);
+                ClientHandler.broadcastToClient(midresults, client_name);
 
                 System.out.println("-------------");
                 System.out.println("Sending to client done !");
