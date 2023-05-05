@@ -8,7 +8,7 @@ import java.io.*;
 
 public class ClientHandler implements Runnable {
 
-    public static ArrayList<ClientHandler> clientHandlers = new ArrayList<>();
+    public static HashMap<String, ClientHandler> clientHandlers = new HashMap<>();
     private Socket socket;
     public static int w = 0;
     public BufferedReader bufferedReaderC;
@@ -25,7 +25,8 @@ public class ClientHandler implements Runnable {
     public ClientHandler(Socket socket) {
         try {
 
-            this.for_reduce = new HashMap<>();
+            this.for_reduce = new HashMap<String, ArrayList<ArrayList<Double>>>();
+
             this.socket = socket;
             out = new ObjectOutputStream(socket.getOutputStream());
             this.bufferedWriterC = new BufferedWriter(new OutputStreamWriter(socket.getOutputStream()));
@@ -35,7 +36,7 @@ public class ClientHandler implements Runnable {
             // broadcastMessage("Server : " + clientUsername + " has connected !");
             w++;
             clientUsername = "user" + w;
-            clientHandlers.add(this);
+            clientHandlers.put(clientUsername, this);
 
         } catch (IOException e) {
             closeEverything(socket, bufferedReaderC, out);
@@ -60,6 +61,8 @@ public class ClientHandler implements Runnable {
                 ArrayList<Waypoint> wpts = new ArrayList<>();
                 wpts = gp.parseGpx(new File(messageFromClient));
 
+                System.out.println("To error einai sto file reading");
+
                 ArrayList<ArrayList<Waypoint>> partitions = MapReduce.Mapping(messageFromClient, wpts);
 
                 partition_size = partitions.size();
@@ -74,6 +77,8 @@ public class ClientHandler implements Runnable {
 
             } catch (Exception e) {
                 System.out.println("There was an exception in the ClientHandler");
+                
+
                 e.printStackTrace();
                 closeEverything(socket, bufferedReaderC, out);
                 break;
@@ -117,17 +122,33 @@ public class ClientHandler implements Runnable {
     }
 
     public synchronized static void broadcastToClient(ArrayList<Double> results, String clientName) {
-        System.out.println("I am in the broadcastToClient in client handler and I will deliver " + results);
 
-        for_reduce.get(clientName).add(results);
+        System.out
+                .println(clientName + " I am in the broadcastToClient in client handler and I will deliver " + results);
+
+        if (for_reduce.containsKey(clientName)) {
+            // Add to the existing list
+            for_reduce.get(clientName).add(results);
+        } else {
+            // If the key doesn't exist, create a new entry with the results list
+            ArrayList<ArrayList<Double>> first_input = new ArrayList<>();
+            first_input.add(results);
+            for_reduce.put(clientName, first_input);
+        }
 
         if (for_reduce.get(clientName).size() == Userlog.get(clientName).size()) {
-            try {
-                ArrayList<Double> tosend = MapReduce.Reduce("client1", for_reduce.get(clientName));
-                ClientHandler.clientHandlers.get(0).out.writeObject(tosend);
-                ClientHandler.clientHandlers.get(0).out.flush();
 
-                ClientHandler.clientHandlers.remove(0);
+            System.out.println("I am in the if statement in Clienthandler");
+            System.out.println(Userlog);
+
+            try {
+
+                ArrayList<Double> tosend = MapReduce.Reduce(clientName, for_reduce.get(clientName));
+
+                ClientHandler.clientHandlers.get(clientName).out.writeObject(tosend);
+                ClientHandler.clientHandlers.get(clientName).out.flush();
+
+                ClientHandler.clientHandlers.remove(clientName);
 
             } catch (Exception e) {
 

@@ -46,29 +46,25 @@ public class WorkerHandler implements Runnable {
     @Override
     public void run() {
         // String messageFromClient;
-        ArrayList<Double> midresults;
+        HashMap<String, ArrayList<Double>> midresults;
 
         while (true) {
             try {
 
-                String client_name;
+                midresults = (HashMap<String, ArrayList<Double>>) inW.readObject();
 
-                midresults = (ArrayList<Double>) inW.readObject();
+                String clientUsername = (String) midresults.keySet().toArray()[0];
+                ArrayList<Double> worker_results = midresults.get(clientUsername);
 
-                for_reduce.add(midresults);
+                System.out.println("From workerhandler The user :" + clientUsername + "will send to broadToClient "
+                        + worker_results);
 
-                // ArrayList<Double> temp_message = new ArrayList<>();
-
-                // temp_message.add(0.4);
-                // temp_message.add(0.5);
-                // temp_message.add(0.5);
-                // temp_message.add(0.6);
-
-                ClientHandler.broadcastToClient(midresults, client_name);
+                ClientHandler.broadcastToClient(worker_results, clientUsername);
 
                 System.out.println("-------------");
                 System.out.println("Sending to client done !");
                 System.out.println("-------------");
+
             } catch (Exception e) {
 
                 System.out.println("Had an exception in the workerhandler");
@@ -78,61 +74,6 @@ public class WorkerHandler implements Runnable {
         }
 
     }
-
-    public void broadcastToClient(ArrayList<HashMap<String, ArrayList<Waypoint>>> waypoints) {
-
-        // steilto se olous tous clients
-        String messageToSend = "client took the message";
-
-        for (ClientHandler clientHandler : ClientHandler.clientHandlers) {
-            try {
-
-                // if (!clientHandler.clientUsername.equals(clientUsername)) {
-                clientHandler.bufferedWriterC.write(messageToSend);
-                clientHandler.bufferedWriterC.newLine();
-                clientHandler.bufferedWriterC.flush();
-                // }
-            } catch (IOException e) {
-                closeEverything(socket, inW, outW);
-                break;
-            }
-        }
-    }
-
-    // public static void clientRequest(String clientMessage) {
-    // for (WorkerHandler workerHandler : workerHandlers) {
-    // try {
-    // workerHandler.bufferedWriter.write(clientMessage);
-    // workerHandler.bufferedWriter.newLine();
-    // workerHandler.bufferedWriter.flush();
-    // } catch (IOException e) {
-    // workerHandler.closeEverything(workerHandler.socket,
-    // workerHandler.bufferedReader,
-    // workerHandler.bufferedWriter);
-    // break;
-    // }
-    // }
-    // }
-
-    // public void broadcastMessage(String messageToSend) {
-    // for (WorkerHandler workerHandler : workerHandlers) {
-    // try {
-    // if (!workerHandler.workerUsername.equals(workerUsername)) {
-    // workerHandler.bufferedWriter.write(messageToSend);
-    // workerHandler.bufferedWriter.newLine();
-    // workerHandler.bufferedWriter.flush();
-    // }
-    // } catch (IOException e) {
-    // closeEverything(socket, bufferedReader, bufferedWriter);
-    // break;
-    // }
-    // }
-    // }
-
-    // public void removeworkerHandler() {
-    // workerHandlers.remove(this);
-    // broadcastMessage(workerUsername + " Has left the chat");
-    // }
 
     public void closeEverything(Socket socket, ObjectInputStream inW, ObjectOutputStream outW) {
         // removeworkerHandler();

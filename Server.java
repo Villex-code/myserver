@@ -11,7 +11,8 @@ public class Server {
     }
 
     public void startServer() throws IOException {
-        System.out.println("Chat app has started");
+        System.out.println("Activity Tracker App has started");
+        System.out.println("Waiting for workers to connect ... ");
 
         int count = 0;
         int workerAmount = 2;

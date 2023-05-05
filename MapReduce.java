@@ -7,14 +7,9 @@ public class MapReduce {
 
     public static ArrayList<ArrayList<Waypoint>> Mapping(String pathname, ArrayList<Waypoint> waypoints) {
 
-        final int Workers_size = 2;
-
-        // int partitionSize = (int) Math.ceil((double) waypoints.size() /
-        // Workers_size);
-
         int partitionSize = 10;
 
-        if (partitionSize == 1) {
+        if (waypoints.size() == 1) {
 
             System.out.println("Too little waypoints ");
             partitionSize += 1;

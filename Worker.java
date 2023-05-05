@@ -23,7 +23,7 @@ public class Worker {
         }
     }
 
-    public synchronized void sendMessage(List<Double> toSend) {
+    public synchronized void sendMessage(HashMap<String, ArrayList<Double>> toSend) {
 
         try {
 
@@ -50,13 +50,17 @@ public class Worker {
 
                         listpart = (HashMap<String, ArrayList<Waypoint>>) in.readObject();
 
-                        String clientUsername = listpart.keySet();
+                        String clientUsername = (String) listpart.keySet().toArray()[0];
 
                         System.out.println("Eimai ston Worker kai phra list : " + listpart);
 
-                        ArrayList<Double> worker_results = MapReduce.Process(listpart.get();
+                        ArrayList<Double> worker_results = MapReduce.Process(listpart.get(clientUsername));
 
-                        sendMessage(worker_results);
+                        HashMap<String, ArrayList<Double>> all_results = new HashMap();
+
+                        all_results.put(clientUsername, worker_results);
+
+                        sendMessage(all_results);
 
                     } catch (IOException e) {
 
