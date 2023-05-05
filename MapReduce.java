@@ -16,8 +16,6 @@ public class MapReduce {
 
         }
 
-        System.out.println("Partition size : " + partitionSize + " with a total points of " + waypoints.size());
-
         // Create a list to hold the partitions
         ArrayList<ArrayList<Waypoint>> partitions = new ArrayList<>();
 
@@ -30,10 +28,8 @@ public class MapReduce {
                 endIndex += 1;
             }
 
-            System.out.println(endIndex + " : " + waypoints.size());
             ArrayList<Waypoint> partition = new ArrayList<>(waypoints.subList(i, endIndex));
 
-            System.out.println(i + " " + endIndex);
             partitions.add(partition);
         }
 

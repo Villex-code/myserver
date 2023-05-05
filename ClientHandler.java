@@ -11,8 +11,8 @@ public class ClientHandler implements Runnable {
     public static HashMap<String, ClientHandler> clientHandlers = new HashMap<>();
     private Socket socket;
     public static int w = 0;
-    public BufferedReader bufferedReaderC;
-    public BufferedWriter bufferedWriterC;
+    private BufferedReader bufferedReaderC;
+    private BufferedWriter bufferedWriterC;
     public ObjectOutputStream out;
     public static int partition_size;
 
@@ -77,7 +77,6 @@ public class ClientHandler implements Runnable {
 
             } catch (Exception e) {
                 System.out.println("There was an exception in the ClientHandler");
-                
 
                 e.printStackTrace();
                 closeEverything(socket, bufferedReaderC, out);
